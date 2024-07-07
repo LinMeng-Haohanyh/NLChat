@@ -171,40 +171,11 @@ jobs:
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
 
-    - name: Wait for Emulator to Start
-      run: |
-        adb wait-for-device
-        adb shell getprop sys.boot_completed | grep -m 1 '1'
-      timeout-minutes: 10  # 增加等待时间
-      continue-on-error: true  # 即使等待失败，工作流也会继续
-
-    - name: Check Emulator Status
-      id: check-emulator
-      run: adb devices
-      continue-on-error: true  # 即使检查失败，工作流也会继续
-
-    - name: Restart Emulator if Needed
-      if: steps.check-emulator.outcome == 'failure'
-      run: |
-        echo "Restarting emulator..."
-        adb -s emulator-5554 emu kill || echo "Emulator already stopped or not reachable"
-        sleep 10  # 等待 10 秒以确保模拟器完全关闭
-        ${{ steps.start-emulator.outputs.script }}  # 重新启动模拟器
-      continue-on-error: true  # 即使重启失败，工作流也会继续
-
-    - name: Install APK
-      run: adb install NLChat/app/build/outputs/apk/release/app-release-unsigned-signed.apk
-      continue-on-error: true  # 即使安装失败，工作流也会继续
-
-    - name: Launch App
-      run: adb shell monkey -p com.haohanyh.linmengjia.nearlink.nlchat.fun -c android.intent.category.LAUNCHER 1
-      continue-on-error: true  # 即使启动失败，工作流也会继续
-
-    - name: Check Emulator Status
-      run: adb devices
-      continue-on-error: true  # 即使检查失败，工作流也会继续
-
-    - name: Stop Emulator
-      run: |
-        adb -s emulator-5554 emu kill || echo "Emulator already stopped or not reachable"
-      continue-on-error: true  # 即使终止失败，工作流也会继续
+    - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew connectedCheck
