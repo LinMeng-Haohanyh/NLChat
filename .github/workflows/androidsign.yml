@@ -121,7 +121,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        api-level: [27, 30]  # 你可以根据需要调整 API 级别
+        api-level: [28, 30]  # 你可以根据需要调整 API 级别
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -163,7 +163,7 @@ jobs:
         emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -no-skin -no-accel -no-cache -no-jni -no-snapshot-save -no-snapshot
         disable-animations: true
         working-directory: NLChat
-        emulator-boot-timeout: 600  # 增加模拟器启动超时时间到 10 分钟
+        emulator-boot-timeout: 480  # 增加模拟器启动超时时间到 8 分钟
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
       continue-on-error: true  # 即使模拟器启动失败，工作流也会继续
@@ -172,7 +172,7 @@ jobs:
       run: |
         adb wait-for-device
         adb shell getprop sys.boot_completed | grep -m 1 '1'
-      timeout-minutes: 10  # 增加等待时间
+      timeout-minutes: 6  # 增加等待时间
       continue-on-error: true  # 即使等待失败，工作流也会继续
 
     - name: Check Emulator Status
