@@ -44,9 +44,12 @@ jobs:
       uses: gradle/gradle-build-action@v3
       with:
         gradle-version: current
-        arguments: assembleRelease
-      working-directory: NLChat  # 设置工作目录
 
+    - name: Build Project
+      run: |
+        cd NLChat
+        ./gradlew assembleRelease
+        
   sign:
     runs-on: ubuntu-latest
     needs: build
