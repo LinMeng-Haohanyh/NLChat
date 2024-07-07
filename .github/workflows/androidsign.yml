@@ -61,8 +61,19 @@ jobs:
       with:
         path: NLChat  # 确保代码被检出到NLChat目录
 
+    - name: Debug APK Path
+      run: |
+        echo "Listing files in NLChat/app/build/outputs/apk/release:"
+        ls -al NLChat/app/build/outputs/apk/release
+
     - name: Release Ready
-      run: mv NLChat/app/build/outputs/apk/release/app-release-signed.apk NLChat_${{ github.ref_name }}.apk
+      run: |
+        if [ -f "NLChat/app/build/outputs/apk/release/app-release-signed.apk" ]; then
+          mv NLChat/app/build/outputs/apk/release/app-release-signed.apk NLChat_${{ github.ref_name }}.apk
+        else
+          echo "Error: APK file not found!"
+          exit 1
+        fi
 
     - name: Release
       uses: ncipollo/release-action@v1
