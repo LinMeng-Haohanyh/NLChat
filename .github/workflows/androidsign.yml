@@ -89,7 +89,8 @@ jobs:
           $(git log -1 --pretty=%B)
         draft: false
         prerelease: false
-        token: ${{ secrets.TOKEN_G }}  # 添加 token 参数
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用环境变量
 
     - name: Run Instrumentation Tests
       run: |
