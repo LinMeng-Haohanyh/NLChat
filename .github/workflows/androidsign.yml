@@ -154,6 +154,21 @@ jobs:
         emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -no-skin -no-accel -no-cache -no-jni -no-snapshot-save -no-snapshot
         disable-animations: true
         working-directory: NLChat
-        emulator-boot-timeout: 300  # 增加模拟器启动超时时间到 5 分钟
+        emulator-boot-timeout: 600  # 增加模拟器启动超时时间到 10 分钟
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
+
+      - name: Wait for Emulator to Start
+        run: |
+          adb wait-for-device
+          adb shell getprop sys.boot_completed | grep -m 1 '1'
+        timeout-minutes: 10  # 增加等待时间
+
+      - name: Install APK
+        run: adb install NLChat/app/build/outputs/apk/release/app-release-unsigned-signed.apk
+
+      - name: Launch App
+        run: adb shell monkey -p com.your.package.name -c android.intent.category.LAUNCHER 1
+
+      - name: Stop Emulator
+        run: adb emu kill
