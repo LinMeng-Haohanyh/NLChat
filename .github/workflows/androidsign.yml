@@ -45,7 +45,7 @@ jobs:
       with:
         gradle-version: current
         arguments: assembleRelease
-      build-root-directory: NLChat
+        build-root-directory: NLChat  # 移动到with部分
 
   sign:
     runs-on: ubuntu-latest
