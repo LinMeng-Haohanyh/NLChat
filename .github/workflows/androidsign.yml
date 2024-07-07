@@ -40,6 +40,11 @@ jobs:
         cd NLChat
         ./gradlew assembleRelease
 
+    - name: Debug Build Output
+      run: |
+        echo "Listing files in NLChat/app/build/outputs/apk/release:"
+        ls -al NLChat/app/build/outputs/apk/release
+
     - name: Sign
       uses: r0adkll/sign-android-release@v1
       id: sign_app
