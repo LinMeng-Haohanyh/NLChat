@@ -171,22 +171,6 @@ jobs:
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
 
-    - name: Start Emulator
-      id: start-emulator
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: ${{ matrix.api-level }}
-        target: google_apis  # 使用 google_apis 而不是 default
-        arch: x86_64
-        force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-        disable-animations: true
-        working-directory: NLChat
-        emulator-boot-timeout: 600  # 增加模拟器启动超时时间到 10 分钟
-      env:
-        JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
-      continue-on-error: true  # 即使模拟器启动失败，工作流也会继续
-
     - name: Wait for Emulator to Start
       run: |
         adb wait-for-device
@@ -224,4 +208,3 @@ jobs:
       run: |
         adb -s emulator-5554 emu kill || echo "Emulator already stopped or not reachable"
       continue-on-error: true  # 即使终止失败，工作流也会继续
-      
