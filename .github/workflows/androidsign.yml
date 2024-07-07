@@ -101,51 +101,16 @@ jobs:
         npm install -g standard-version
         standard-version --release-as ${{ github.ref_name }}
         git push --follow-tags origin ${{ github.ref_name }}
-
-    - name: Get Previous Tag
-      id: prev-tag
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const tags = await github.rest.repos.listTags({
-            owner: context.repo.owner,
-            repo: context.repo.repo
-          });
-          if (tags.data.length > 1) {
-            return tags.data[1].name;
-          } else {
-            return null;
-          }
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Get Commit Messages
-      id: commit-messages
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const prevTag = '${{ steps.prev-tag.outputs.result }}';
-          if (prevTag) {
-            const commits = await github.repos.compareCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              base: prevTag,
-              head: context.sha
-            });
-            return commits.data.commits.map(commit => `- ${commit.commit.message}`).join('\n');
-          } else {
-            return 'No previous tag found.';
-          }
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get Commit Message
+      id: get_commit_message
+      run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
     - name: Create or Update Release Notes
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
-        body: |
-          ${{ steps.commit-messages.outputs.result }}
+        body: ${{ env.COMMIT_MESSAGE }}
         draft: false
         prerelease: false
       env:
