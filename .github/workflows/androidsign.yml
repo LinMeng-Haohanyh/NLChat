@@ -92,10 +92,36 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用环境变量
 
+  multi-platform-test:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        api-level: [21, 23, 29, 30]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: NLChat  # 确保代码被检出到NLChat目录
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        build-tools: '34.0.0'
+
     - name: Start Emulator
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 30
+        api-level: ${{ matrix.api-level }}
+        target: google_apis  # 使用 google_apis 而不是 default
+        arch: x86
         script: ./gradlew connectedAndroidTest
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
