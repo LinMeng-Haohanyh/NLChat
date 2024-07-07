@@ -92,9 +92,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用环境变量
 
-    - name: Run Instrumentation Tests
-      run: |
-        cd NLChat
-        ./gradlew connectedAndroidTest
+    - name: Start Emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        script: ./gradlew connectedAndroidTest
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
