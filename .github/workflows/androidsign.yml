@@ -121,12 +121,18 @@ jobs:
     needs: build
     strategy:
       matrix:
-        api-level: [28, 30]  # 你可以根据需要调整 API 级别
+        api-level: [21, 23, 29]  # 你可以根据需要调整 API 级别
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         path: NLChat  # 确保代码被检出到 NLChat 目录
+
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
 
     - name: Set up Java
       uses: actions/setup-java@v4
@@ -143,14 +149,27 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x NLChat/gradlew  # 在 NLChat 目录中执行
 
-    - name: Install Android SDK components
-      run: |
-        sudo chown $USER:$USER /usr/local/lib/android/sdk -R
-        yes | sdkmanager --licenses
-        sdkmanager --install 'build-tools;34.0.0' platform-tools 'platforms;android-${{ matrix.api-level }}'
-        sdkmanager --install emulator --channel=0
-        sdkmanager --install 'system-images;android-${{ matrix.api-level }};google_apis;x86_64' --channel=0
-      continue-on-error: true  # 即使安装失败，工作流也会继续
+    - name: Gradle cache
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: AVD cache
+      uses: actions/cache@v4
+      id: avd-cache
+      with:
+        path: |
+          ~/.android/avd/*
+          ~/.android/adb*
+        key: avd-${{ matrix.api-level }}
+
+    - name: create AVD and generate snapshot for caching
+      if: steps.avd-cache.outputs.cache-hit != 'true'
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: false
+        script: echo "Generated AVD snapshot for caching."
 
     - name: Start Emulator
       id: start-emulator
@@ -159,8 +178,8 @@ jobs:
         api-level: ${{ matrix.api-level }}
         target: google_apis  # 使用 google_apis 而不是 default
         arch: x86_64
-        script: ./gradlew connectedAndroidTest --stacktrace --info
-        emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -no-skin -no-accel -no-cache -no-jni -no-snapshot-save -no-snapshot
+        force-avd-creation: false
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         working-directory: NLChat
         emulator-boot-timeout: 600  # 增加模拟器启动超时时间到 10 分钟
