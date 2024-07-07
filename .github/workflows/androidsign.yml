@@ -31,6 +31,7 @@ jobs:
     needs: cache
     steps:
     - name: JDK17 Eclipsejdk
+      id: setup-java
       uses: actions/setup-java@v4
       with:
         java-version: '17'
@@ -55,7 +56,7 @@ jobs:
 
     - name: Build Project
       env:
-        JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.8/x64  # 设置 JAVA_HOME 环境变量
+        JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 设置 JAVA_HOME 环境变量
       run: |
         cd NLChat
         ./gradlew assembleRelease
