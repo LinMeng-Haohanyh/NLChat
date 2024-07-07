@@ -54,11 +54,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x NLChat/gradlew
 
-    - name: Set JAVA_HOME
-      run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
-
     - name: Build Project
+      env:
+        JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 使用 setup-java 动作的输出变量
       run: |
+        echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}"  
         cd NLChat
         ./gradlew assembleRelease
         
