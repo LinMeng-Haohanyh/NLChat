@@ -121,7 +121,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        api-level: [21, 23, 27, 28, 29, 30]  # 你可以根据需要调整 API 级别
+        api-level: [28, 29, 30]  # 你可以根据需要调整 API 级别
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -140,7 +140,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-        
+
       - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
