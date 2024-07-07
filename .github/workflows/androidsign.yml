@@ -59,7 +59,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: signed-apk
-        path: NLChat/app/build/outputs/apk/release/app-release-signed.apk
+        path: NLChat/app/build/outputs/apk/release/app-release-unsigned-signed.apk
 
   release:
     runs-on: ubuntu-latest
@@ -78,8 +78,8 @@ jobs:
 
     - name: Release Ready
       run: |
-        if [ -f "NLChat/app/build/outputs/apk/release/app-release-signed.apk" ]; then
-          mv NLChat/app/build/outputs/apk/release/app-release-signed.apk NLChat_${{ github.ref_name }}.apk
+        if [ -f "NLChat/app/build/outputs/apk/release/app-release-unsigned-signed.apk" ]; then
+          mv NLChat/app/build/outputs/apk/release/app-release-unsigned-signed.apk NLChat_${{ github.ref_name }}.apk
         else
           echo "Error: APK file not found!"
           exit 1
