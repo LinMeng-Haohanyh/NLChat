@@ -195,13 +195,3 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: ./gradlew connectedAndroidTest --stacktrace
-
-      - name: Take Screenshot
-        run: |
-          adb exec-out screencap -p > screenshot_${{ github.workflow }}_${{ matrix.api-level }}_${{ matrix.target }}_${{ matrix.arch }}.png
-
-      - name: Upload Screenshot
-        uses: actions/upload-artifact@v3
-        with:
-          name: screenshot_${{ github.workflow }}_${{ matrix.api-level }}_${{ matrix.target }}_${{ matrix.arch }}
-          path: screenshot_${{ github.workflow }}_${{ matrix.api-level }}_${{ matrix.target }}_${{ matrix.arch }}.png
