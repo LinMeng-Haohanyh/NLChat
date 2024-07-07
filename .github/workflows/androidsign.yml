@@ -25,9 +25,9 @@ jobs:
       run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
 
     - name: Set up Gradle
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v2
       with:
-        gradle-version: current
+        gradle-version: 'current'  # 使用最新的 Gradle 版本
 
     - name: Grant execute permission for gradlew
       run: chmod +x NLChat/gradlew
@@ -149,7 +149,7 @@ jobs:
       with:
         api-level: ${{ matrix.api-level }}
         target: google_apis  # 使用 google_apis 而不是 default
-        arch: arm64-v8a
+        arch: x86_64
         script: ./gradlew connectedAndroidTest --stacktrace --info
         emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -no-skin -no-accel -no-cache -no-jni -no-snapshot-save -no-snapshot
         disable-animations: true
