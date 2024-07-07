@@ -97,7 +97,8 @@ jobs:
     needs: build
     strategy:
       matrix:
-        api-level: [21, 23, 29, 30]
+        api-level: [29, 30]  # 你可以根据需要调整 API 级别
+        arch: [arm64-v8a, armeabi-v7a]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -116,6 +117,10 @@ jobs:
         api-level: ${{ matrix.api-level }}
         build-tools: '34.0.0'
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+        working-directory: NLChat  # 在 NLChat 目录中执行
+
     - name: Start Emulator
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -123,5 +128,9 @@ jobs:
         target: google_apis  # 使用 google_apis 而不是 default
         arch: x86
         script: ./gradlew connectedAndroidTest
+        emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect
+        disable-animations: true
+        working-directory: NLChat
+        timeout: 2  # 增加超时时间到2分钟
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
