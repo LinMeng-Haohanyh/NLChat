@@ -62,7 +62,7 @@ jobs:
         path: NLChat  # 确保代码被检出到NLChat目录
 
     - name: Release Ready
-      run: mv ${{ needs.build.outputs.signedReleaseFile }} NLChat_${{ github.ref_name }}.apk
+      run: mv NLChat/app/build/outputs/apk/release/app-release-signed.apk NLChat_${{ github.ref_name }}.apk
 
     - name: Release
       uses: ncipollo/release-action@v1
