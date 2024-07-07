@@ -25,7 +25,7 @@ jobs:
       run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
 
     - name: Set up Gradle
-      uses: gradle/actions/setup-gradle@v2
+      uses: actions/setup-gradle@v2
       with:
         gradle-version: 'current'  # 使用最新的 Gradle 版本
 
@@ -102,16 +102,50 @@ jobs:
         standard-version --release-as ${{ github.ref_name }}
         git push --follow-tags origin ${{ github.ref_name }}
 
-    - name: Get Commit Message
-      id: get_commit_message
-      run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+    - name: Get Previous Tag
+      id: prev-tag
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const tags = await github.repos.listTags({
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          });
+          if (tags.data.length > 1) {
+            return tags.data[1].name;
+          } else {
+            return null;
+          }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get Commit Messages
+      id: commit-messages
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const prevTag = '${{ steps.prev-tag.outputs.result }}';
+          if (prevTag) {
+            const commits = await github.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: prevTag,
+              head: context.sha
+            });
+            return commits.data.commits.map(commit => `- ${commit.commit.message}`).join('\n');
+          } else {
+            return 'No previous tag found.';
+          }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create or Update Release Notes
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
-        body: ${{ env.COMMIT_MESSAGE }}
+        body: |
+          ${{ steps.commit-messages.outputs.result }}
         draft: false
         prerelease: false
       env:
