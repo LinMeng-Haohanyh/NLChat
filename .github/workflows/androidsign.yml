@@ -54,9 +54,10 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x NLChat/gradlew
 
+    - name: Set JAVA_HOME
+      run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
+
     - name: Build Project
-      env:
-        JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 设置 JAVA_HOME 环境变量
       run: |
         cd NLChat
         ./gradlew assembleRelease
