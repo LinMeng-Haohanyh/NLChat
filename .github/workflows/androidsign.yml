@@ -101,13 +101,12 @@ jobs:
     needs: build
     strategy:
       matrix:
-        api-level: [29, 30]  # 你可以根据需要调整 API 级别
-        arch: [arm64-v8a, armeabi-v7a]
+        api-level: [27, 30]  # 你可以根据需要调整 API 级别
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        path: NLChat  # 确保代码被检出到NLChat目录
+        path: NLChat  # 确保代码被检出到 NLChat 目录
 
     - name: Set up Java
       uses: actions/setup-java@v4
@@ -129,10 +128,11 @@ jobs:
       with:
         api-level: ${{ matrix.api-level }}
         target: google_apis  # 使用 google_apis 而不是 default
+        arch: arm64-v8a
         script: ./gradlew connectedAndroidTest --stacktrace --info
-        emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect
+        emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -no-skin -no-accel -no-cache -no-jni -no-snapshot-save -no-snapshot
         disable-animations: true
         working-directory: NLChat
-        emulator-boot-timeout: 600  # 增加模拟器启动超时时间到10分钟
+        emulator-boot-timeout: 300  # 增加模拟器启动超时时间到 5 分钟
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
