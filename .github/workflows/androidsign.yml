@@ -14,14 +14,6 @@ jobs:
       with:
         path: NLChat  # 确保代码被检出到NLChat目录
 
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
     - name: Set up JDK 17
       id: setup-java
       uses: actions/setup-java@v4
@@ -61,12 +53,12 @@ jobs:
         BUILD_TOOLS_VERSION: "34.0.0"
 
     - name: Release Ready
-      run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} NLChat_$GITHUB_REF_NAME.apk
+      run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} NLChat_${{ github.ref_name }}.apk
 
     - name: Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "NLChat_$GITHUB_REF_NAME.apk"
+        artifacts: "NLChat_${{ github.ref_name }}.apk"
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
 
@@ -130,6 +122,6 @@ jobs:
         emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect
         disable-animations: true
         working-directory: NLChat
-        timeout: 2  # 增加超时时间到2分钟
+        emulator-boot-timeout: 600  # 增加模拟器启动超时时间到10分钟
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 确保测试步骤也使用相同的 JAVA_HOME
