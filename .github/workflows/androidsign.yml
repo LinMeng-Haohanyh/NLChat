@@ -60,17 +60,14 @@ jobs:
       env:
         BUILD_TOOLS_VERSION: "34.0.0"
 
-    - name: Set signedReleaseFile output
-      run: echo "signedReleaseFile=$(find NLChat/app/build/outputs/apk/release -name '*.apk')" >> $GITHUB_ENV
-
     - name: Release Ready
-      run: mv ${{ env.signedReleaseFile }} NLChat_$GITHUB_REF_NAME.apk
+      run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} NLChat_$GITHUB_REF_NAME.apk
 
     - name: Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "*.apk"
-        token: ${{ github.token }}
+        artifacts: "NLChat_$GITHUB_REF_NAME.apk"
+        token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
 
     - name: Bump version and generate changelog
