@@ -73,6 +73,7 @@ jobs:
     - name: Bump version and generate changelog
       id: version
       run: |
+        cd NLChat
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         npm install -g standard-version
