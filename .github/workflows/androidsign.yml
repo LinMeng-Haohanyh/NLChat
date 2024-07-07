@@ -25,7 +25,7 @@ jobs:
       run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
 
     - name: Set up Gradle
-      uses: actions/setup-gradle@v2
+      uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: 'current'  # 使用最新的 Gradle 版本
 
