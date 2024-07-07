@@ -52,6 +52,9 @@ jobs:
       env:
         BUILD_TOOLS_VERSION: "34.0.0"
 
+    - name: List files in release directory
+      run: ls -R NLChat/app/build/outputs/apk/release
+
     - name: Upload Signed APK
       uses: actions/upload-artifact@v3
       with:
