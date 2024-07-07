@@ -52,8 +52,17 @@ jobs:
       env:
         BUILD_TOOLS_VERSION: "34.0.0"
 
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: NLChat  # 确保代码被检出到NLChat目录
+
     - name: Release Ready
-      run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} NLChat_${{ github.ref_name }}.apk
+      run: mv ${{ needs.build.outputs.signedReleaseFile }} NLChat_${{ github.ref_name }}.apk
 
     - name: Release
       uses: ncipollo/release-action@v1
@@ -72,13 +81,16 @@ jobs:
         standard-version --release-as ${{ github.ref_name }}
         git push --follow-tags origin ${{ github.ref_name }}
 
+    - name: Get Commit Message
+      id: get_commit_message
+      run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
     - name: Create or Update Release Notes
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
-        body: |
-          $(git log -1 --pretty=%B)
+        body: ${{ env.COMMIT_MESSAGE }}
         draft: false
         prerelease: false
       env:
@@ -117,8 +129,7 @@ jobs:
       with:
         api-level: ${{ matrix.api-level }}
         target: google_apis  # 使用 google_apis 而不是 default
-        arch: x86
-        script: ./gradlew connectedAndroidTest
+        script: ./gradlew connectedAndroidTest --stacktrace --info
         emulator-options: -no-snapshot-load -no-window -gpu swiftshader_indirect
         disable-animations: true
         working-directory: NLChat
