@@ -49,6 +49,9 @@ jobs:
       uses: gradle/gradle-build-action@v3
       with:
         gradle-version: current
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x NLChat/gradlew
 
     - name: Build Project
       run: |
