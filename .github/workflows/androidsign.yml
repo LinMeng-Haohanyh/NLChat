@@ -96,7 +96,7 @@ jobs:
       id: get_commit_message
       run: |
         cd NLChat
-        echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        echo "COMMIT_MESSAGE=$(git log -2 --pretty=%B)" >> $GITHUB_ENV
       continue-on-error: true
 
     - name: Create or Update Release Notes
@@ -104,7 +104,51 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}
         name: ${{ github.ref_name }}
-        body: ${{ env.COMMIT_MESSAGE }}
+        body: |
+          ## 测试内容1
+          ${{ env.COMMIT_MESSAGE }}
+          ## 测试内容2
+          Commit ID: ${{ github.event.head_commit.id }}
+          Commit Message: ${{ github.event.head_commit.message }}
+          Commit Timestamp: ${{ github.event.head_commit.timestamp }}
+          Author Name: ${{ github.event.head_commit.author.name }}
+          Author Email: ${{ github.event.head_commit.author.email }}
+          Committer Name: ${{ github.event.head_commit.committer.name }}
+          Committer Email: ${{ github.event.head_commit.committer.email }}
+          Commit URL: ${{ github.event.head_commit.url }}
+          ## 测试内容3
+          Pull Request URL: ${{ github.event.pull_request.url }}
+          Pull Request ID: ${{ github.event.pull_request.id }}
+          Pull Request Number: ${{ github.event.pull_request.number }}
+          Pull Request Title: ${{ github.event.pull_request.title }}
+          Pull Request Body: ${{ github.event.pull_request.body }}
+          Author Login: ${{ github.event.pull_request.user.login }}
+          Author ID: ${{ github.event.pull_request.user.id }}
+          Source Branch: ${{ github.event.pull_request.head.ref }}
+          Source SHA: ${{ github.event.pull_request.head.sha }}
+          Target Branch: ${{ github.event.pull_request.base.ref }}
+          Target SHA: ${{ github.event.pull_request.base.sha }}
+          Is Merged: ${{ github.event.pull_request.merged }}
+          Merge Commit SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          ## 测试内容4
+          Commit ID: ${{ github.event.commit.id }}
+          Commit Message: ${{ github.event.commit.message }}
+          Commit Timestamp: ${{ github.event.commit.timestamp }}
+          Author Name: ${{ github.event.commit.author.name }}
+          Author Email: ${{ github.event.commit.author.email }}
+          Commit URL: ${{ github.event.commit.url }}
+          ## 测试内容5
+          Committer Name: ${{ github.event.commit.committer.name }}
+          Committer Email: ${{ github.event.commit.committer.email }}
+          ## 测试内容6
+          Pull Request Action: ${{ github.event.action }}
+          ## 测试内容7
+          ## 测试内容8
+          ${{ steps.get_commit_message.outputs.COMMIT_MESSAGE }}
+          ## 测试内容4
+          ## What's Changed for recent commits
+          ## What's Changed for recent commits
+          ## New Contributors
         draft: false
         prerelease: false
       env:
@@ -140,9 +184,6 @@ jobs:
             arch: arm64-v8a
           - api-level: 33
             target: default
-            arch: x86_64
-          - api-level: 33
-            target: google_apis
             arch: x86_64
           - api-level: 33
             target: google_apis
